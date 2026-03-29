@@ -12,6 +12,8 @@ built for the University of Toronto community.
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
+English | [中文简体](./README.zh-CN.md)
+
 </div>
 
 ---
