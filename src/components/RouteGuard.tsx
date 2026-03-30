@@ -7,8 +7,19 @@ import { useAppStore } from "@/context/AppStoreContext"
 const PUBLIC_PATHS = ["/login", "/"]
 const PROFILE_SETUP_PATH = "/profile"
 
+function normalizePathname(pathname: string): string {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+  if (!basePath) return pathname
+  if (pathname === basePath) return "/"
+  if (pathname.startsWith(basePath + "/")) {
+    return pathname.slice(basePath.length)
+  }
+  return pathname
+}
+
 export function RouteGuard({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname()
+  const rawPathname = usePathname()
+  const pathname = normalizePathname(rawPathname)
   const router = useRouter()
   const { store } = useAppStore()
 
