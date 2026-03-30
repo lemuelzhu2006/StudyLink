@@ -437,7 +437,7 @@ export function getMatchingSessions(
   location: string,
   studyStyle: string,
   goal: string,
-  _date?: string
+  date?: string
 ): Session[] {
   const normalizedCourse = course.trim().toUpperCase()
   if (!normalizedCourse) return []
@@ -450,7 +450,11 @@ export function getMatchingSessions(
   const locationLead = location.trim().split(" ")[0]?.toLowerCase() ?? ""
 
   return ALL_SESSIONS
-    .filter((session) => session.course.trim().toUpperCase() === normalizedCourse)
+    .filter((session) => {
+      if (session.course.trim().toUpperCase() !== normalizedCourse) return false
+      if (date && session.date !== date) return false
+      return true
+    })
     .map((session) => {
       const styleScore = session.studyStyle === styleId ? 20 : 0
       const goalScore = goalWords.some((word) => session.goal.toLowerCase().includes(word)) ? 8 : 0
