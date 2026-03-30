@@ -1,3 +1,5 @@
+import { publicUrl } from "./public-path"
+
 export interface AuthUser {
   email: string
   password: string
@@ -6,7 +8,7 @@ export interface AuthUser {
 
 export async function loadUsers(): Promise<AuthUser[]> {
   try {
-    const res = await fetch("/users.csv")
+    const res = await fetch(publicUrl("/users.csv"))
     const text = await res.text()
     const lines = text.trim().split("\n")
     if (lines.length < 2) return []

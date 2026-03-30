@@ -10,7 +10,7 @@ import { useAppStore } from "@/context/AppStoreContext"
 function MatchingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { store, setMatchedPartner, setMatchedPartners, updateSessionStatus, getSessionById } = useAppStore()
+  const { setMatchedPartner, setMatchedPartners, updateSessionStatus, getSessionById } = useAppStore()
   const sessionId = searchParams.get("sessionId") || searchParams.get("from")
 
   useEffect(() => {
@@ -63,7 +63,7 @@ function MatchingContent() {
 
     const t = setTimeout(runMatching, 1500)
     return () => clearTimeout(t)
-  }, [sessionId, router, setMatchedPartner, updateSessionStatus, getSessionById])
+  }, [sessionId, router, setMatchedPartner, setMatchedPartners, updateSessionStatus, getSessionById])
 
   return (
     <div className="flex flex-col min-h-[780px]">

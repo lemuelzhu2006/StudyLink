@@ -28,6 +28,7 @@ English | [中文简体](./README.zh-CN.md)
 - [Project Structure](#project-structure)
 - [Route Map & API](#route-map--api)
 - [Environment Variables](#environment-variables)
+- [Deployment (GitHub Pages)](#deployment-github-pages)
 - [Demo Accounts](#demo-accounts)
 - [Architecture Overview](#architecture-overview)
 - [Contributing](#contributing)
@@ -367,6 +368,47 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 ```
 
 > **Note:** The app works fully without this variable. Google Sign-In and Calendar sync will use demo/URL-based fallbacks.
+
+---
+
+## Deployment (GitHub Pages)
+
+This app is a **static export** (`next build` → `out/`) and can be hosted on [GitHub Pages](https://pages.github.com/) for free. The live URL looks like:
+
+`https://<your-username>.github.io/<repository-name>/`
+
+### One-time repository setup
+
+1. On GitHub, open the repo → **Settings** → **Pages**.
+2. Under **Build and deployment** → **Source**, choose **GitHub Actions** (not “Deploy from a branch”).
+3. Save.
+
+### Automatic deploy
+
+The workflow [`.github/workflows/deploy-github-pages.yml`](.github/workflows/deploy-github-pages.yml) runs on every push to `main` or `master`. It:
+
+- Sets `NEXT_PUBLIC_BASE_PATH` to `/<repository-name>` so assets and routes work under the project URL.
+- Uploads the `out/` folder and publishes it with the official Pages deploy action.
+
+After the first successful run, open **Actions** → latest **Deploy to GitHub Pages** → the **deploy** job shows the **page URL**.
+
+### Local production build (with subpath)
+
+To mimic GitHub Pages locally:
+
+```bash
+# Windows PowerShell
+$env:NEXT_PUBLIC_BASE_PATH="/YourRepoName"; npm run build
+npx serve out
+```
+
+Then open the printed URL (add `/YourRepoName/` at the end if needed).
+
+### Google OAuth on GitHub Pages
+
+If you use Google Sign-In, add your production origin to the OAuth client in Google Cloud Console, for example:
+
+`https://your-username.github.io`
 
 ---
 

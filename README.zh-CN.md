@@ -28,6 +28,7 @@
 - [项目结构](#项目结构)
 - [路由与接口](#路由与接口)
 - [环境变量](#环境变量)
+- [部署（GitHub Pages）](#部署github-pages)
 - [演示账号](#演示账号)
 - [架构概览](#架构概览)
 - [贡献指南](#贡献指南)
@@ -367,6 +368,45 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
 ```
 
 > **注意：** 不配置此变量应用也能完整运行。Google 登录和日历同步将使用演示模式 / 基于 URL 的降级方案。
+
+---
+
+## 部署（GitHub Pages）
+
+本项目使用 **静态导出**（`next build` 生成 `out/`），可免费托管在 [GitHub Pages](https://pages.github.com/)。线上地址一般为：
+
+`https://<你的用户名>.github.io/<仓库名>/`
+
+### 仓库一次性设置
+
+1. 在 GitHub 打开仓库 → **Settings** → **Pages**。
+2. **Build and deployment** → **Source** 选择 **GitHub Actions**（不要选 “Deploy from a branch”）。
+3. 保存。
+
+### 自动部署
+
+工作流 [`.github/workflows/deploy-github-pages.yml`](.github/workflows/deploy-github-pages.yml) 会在推送到 `main` 或 `master` 时运行，它会：
+
+- 将 `NEXT_PUBLIC_BASE_PATH` 设为 `/<仓库名>`，使资源与路由在「项目页」子路径下正确工作；
+- 上传 `out/` 目录并通过官方 Pages 部署动作发布。
+
+首次成功后，在 **Actions** → 最新的 **Deploy to GitHub Pages** → **deploy** 任务中可看到 **page URL**。
+
+### 本地模拟子路径构建
+
+```bash
+# Windows PowerShell
+$env:NEXT_PUBLIC_BASE_PATH="/YourRepoName"; npm run build
+npx serve out
+```
+
+浏览器访问终端提示的地址（若需子路径，路径末尾加上 `/YourRepoName/`）。
+
+### GitHub Pages 上的 Google 登录
+
+若启用 Google 登录，请在 Google Cloud Console 的 OAuth 客户端「已获授权的 JavaScript 来源」中加入生产环境，例如：
+
+`https://your-username.github.io`
 
 ---
 
