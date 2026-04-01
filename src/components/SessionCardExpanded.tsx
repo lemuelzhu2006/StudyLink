@@ -1,11 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { Session, STUDY_STYLES, formatSessionDate } from "@/lib/mock-data"
+import { Session, STUDY_STYLES, formatSessionDate, VERIFIED_BADGE_TITLE } from "@/lib/mock-data"
 import type { SavedPartner } from "@/lib/mock-data"
 import { RecommendationReasonChips } from "./RecommendationReasonChips"
 import { Avatar } from "./Avatar"
-import { BadgeCheck } from "lucide-react"
+import { BadgeCheck, Star } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SessionCardExpandedProps {
@@ -27,17 +27,27 @@ export function SessionCardExpanded({ session, hideActions, onSavePartner, isSav
     <div
       className={cn(
         "rounded-xl bg-white border border-slate-200 shadow-lg overflow-hidden",
+        isSaved && "border-l-[3px] border-l-emerald-500",
         className
       )}
     >
       <div className="p-4">
         <div className="flex gap-3 mb-3">
-          <Avatar src={student.avatar} size="xl" className="bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 ring-2 ring-white shadow-inner" />
+          <Avatar
+            src={student.avatar}
+            size="xl"
+            className={cn(
+              "bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 shadow-inner",
+              isSaved ? "ring-2 ring-emerald-400 ring-offset-2" : "ring-2 ring-white"
+            )}
+          />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-slate-900">{student.name}</span>
               {student.verified && (
-                <BadgeCheck className="h-4 w-4 text-sky-500 flex-shrink-0" />
+                <span title={VERIFIED_BADGE_TITLE} className="inline-flex" role="img" aria-label={VERIFIED_BADGE_TITLE}>
+                  <BadgeCheck className="h-4 w-4 text-sky-500 flex-shrink-0" aria-hidden />
+                </span>
               )}
             </div>
             <p className="text-sm text-slate-600">
@@ -106,13 +116,15 @@ export function SessionCardExpanded({ session, hideActions, onSavePartner, isSav
             })
           }
           disabled={isSaved}
-          className={`px-4 py-2.5 rounded-lg border font-medium transition-colors ${
+          aria-label={isSaved ? "Partner already saved" : "Save study partner to your list"}
+          className={`inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg border font-medium transition-colors ${
             isSaved
               ? "border-slate-100 bg-slate-50 text-slate-400 cursor-default"
-              : "border-slate-200 bg-white hover:bg-slate-50"
+              : "border-sky-200 bg-sky-50 text-sky-800 hover:bg-sky-100"
           }`}
         >
-          {isSaved ? "Saved" : "Save"}
+          <Star className={`h-4 w-4 ${isSaved ? "fill-amber-400 text-amber-500" : ""}`} aria-hidden />
+          {isSaved ? "Saved" : "Save partner"}
         </button>
       </div>
       )}

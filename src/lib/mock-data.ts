@@ -101,6 +101,10 @@ export const RECOMMENDATION_LABELS: Record<RecommendationReason, string> = {
   "same-goal": "Same goal",
 }
 
+/** Shown as native tooltip on verified badges (campus email trust indicator). */
+export const VERIFIED_BADGE_TITLE =
+  "Verified on StudyLink: campus email confirmed (prototype)."
+
 function futureDate(daysFromNow: number): string {
   const d = new Date()
   d.setDate(d.getDate() + daysFromNow)
@@ -394,6 +398,17 @@ export const ALL_SESSIONS: Session[] = [
   },
 ]
 
+const RECOMMENDATION_SORT_WEIGHT: Record<RecommendationReason, number> = {
+  "same-course": 1000,
+  "similar-study-style": 100,
+  "same-goal": 40,
+  "near-default-location": 10,
+}
+
+function recommendationSortScore(reasons: RecommendationReason[]): number {
+  return reasons.reduce((sum, r) => sum + RECOMMENDATION_SORT_WEIGHT[r], 0)
+}
+
 export function getRecommendedSessions(
   userCoursesStr: string,
   userLocation: string,
@@ -419,17 +434,25 @@ export function getRecommendedSessions(
   let sessions = ALL_SESSIONS
   if (date) sessions = sessions.filter((s) => s.date === date)
 
-  return sessions.map((session) => {
-    const reasons: RecommendationReason[] = []
-    if (userCourses.some((c) => session.course === c || session.student.courses.includes(c)))
-      reasons.push("same-course")
-    if (session.studyStyle === userStyle) reasons.push("similar-study-style")
-    if (session.location === userLocation || session.location.includes(userLocation.split(" ")[0]))
-      reasons.push("near-default-location")
-    if (userGoals.some((g) => session.goal.toLowerCase().includes(g)))
-      reasons.push("same-goal")
-    return { ...session, recommendationReasons: reasons }
-  }).filter((s) => s.recommendationReasons.length > 0)
+  return sessions
+    .map((session) => {
+      const reasons: RecommendationReason[] = []
+      if (userCourses.some((c) => session.course === c || session.student.courses.includes(c)))
+        reasons.push("same-course")
+      if (session.studyStyle === userStyle) reasons.push("similar-study-style")
+      if (session.location === userLocation || session.location.includes(userLocation.split(" ")[0]))
+        reasons.push("near-default-location")
+      if (userGoals.some((g) => session.goal.toLowerCase().includes(g)))
+        reasons.push("same-goal")
+      return { ...session, recommendationReasons: reasons }
+    })
+    .filter((s) => s.recommendationReasons.length > 0)
+    .sort(
+      (a, b) =>
+        recommendationSortScore(b.recommendationReasons) -
+          recommendationSortScore(a.recommendationReasons) ||
+        a.id.localeCompare(b.id)
+    )
 }
 
 export function getMatchingSessions(
@@ -497,7 +520,7 @@ export const chatPrompts = {
     "Would tomorrow afternoon work?",
     "Let's aim for 1.5 hours.",
   ],
-  followup: [
+  "follow-up": [
     "Same time next week?",
     "Want to schedule another session?",
     "That was helpful — thanks!",
@@ -506,6 +529,13 @@ export const chatPrompts = {
     "Sorry, I can't make that time.",
     "Maybe another day?",
     "I'll pass for now.",
+  ],
+  replies: [
+    "Sounds good — that works for me.",
+    "Thanks — yes, I'm interested in studying together.",
+    "I can't that day — could we try another time?",
+    "Let me get back to you after I check my schedule.",
+    "I'm mostly looking for quiet solo time, but happy to sync briefly first.",
   ],
 }
 

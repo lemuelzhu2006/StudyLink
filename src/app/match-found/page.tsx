@@ -7,7 +7,7 @@ import { useAppStore } from "@/context/AppStoreContext"
 import { ProfileInfoCard } from "@/components/ProfileInfoCard"
 import { SessionCardExpanded } from "@/components/SessionCardExpanded"
 import { Avatar } from "@/components/Avatar"
-import { STUDY_STYLES, formatSessionDate } from "@/lib/mock-data"
+import { STUDY_STYLES, formatSessionDate, VERIFIED_BADGE_TITLE } from "@/lib/mock-data"
 import { BadgeCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -106,7 +106,9 @@ function MatchFoundContent() {
                           {m.student.name}
                         </span>
                         {m.student.verified && (
-                          <BadgeCheck className="h-3.5 w-3.5 text-sky-500 flex-shrink-0" />
+                          <span title={VERIFIED_BADGE_TITLE} className="inline-flex" role="img" aria-label={VERIFIED_BADGE_TITLE}>
+                            <BadgeCheck className="h-3.5 w-3.5 text-sky-500 flex-shrink-0" aria-hidden />
+                          </span>
                         )}
                         <span className={cn(
                           "ml-auto text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0",
