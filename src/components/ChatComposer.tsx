@@ -8,6 +8,8 @@ interface ChatComposerProps {
   onSend?: (message: string) => void
   onPromptSelect?: (text: string) => void
   promptChips?: string[]
+  /** Shown when the peer has sent at least one message (quick responses). */
+  replyChips?: string[]
   placeholder?: string
   className?: string
 }
@@ -16,6 +18,7 @@ export function ChatComposer({
   onSend,
   onPromptSelect,
   promptChips,
+  replyChips,
   placeholder = "Type a message...",
   className,
 }: ChatComposerProps) {
@@ -35,6 +38,23 @@ export function ChatComposer({
 
   return (
     <div className={cn("border-t border-slate-200 bg-white p-3", className)}>
+      {replyChips && replyChips.length > 0 && (
+        <div className="mb-3">
+          <p className="text-xs font-medium text-slate-500 mb-1.5">Quick replies</p>
+          <div className="flex flex-wrap gap-2">
+            {replyChips.map((text, i) => (
+              <button
+                key={`r-${i}`}
+                type="button"
+                onClick={() => handlePromptClick(text)}
+                className="px-3 py-1.5 rounded-lg text-xs bg-emerald-50 text-emerald-900 border border-emerald-100 hover:bg-emerald-100 transition-colors"
+              >
+                {text}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {promptChips && promptChips.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {promptChips.map((text, i) => (

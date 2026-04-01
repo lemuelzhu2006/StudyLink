@@ -11,11 +11,11 @@ import { chatPrompts, getStudentById, STUDY_STYLES } from "@/lib/mock-data"
 import { useAppStore } from "@/context/AppStoreContext"
 
 const TABS = [
-  { id: "opening", label: "Opening" },
-  { id: "alignment", label: "Alignment" },
-  { id: "time-setting", label: "Time-setting" },
-  { id: "follow-up", label: "Follow-up" },
-  { id: "refusal", label: "Refusal" },
+  { id: "opening", label: "Opening", hint: "Icebreakers and first messages" },
+  { id: "alignment", label: "Pacing & goals", hint: "Session length, pace, and what you want from studying" },
+  { id: "time-setting", label: "Time & duration", hint: "How long and which day or time slot" },
+  { id: "follow-up", label: "Follow-up", hint: "After you have agreed — next steps and thanks" },
+  { id: "refusal", label: "Refusal", hint: "Politely decline or reschedule" },
 ] as const
 
 const DEFAULT_CHAT_PARTNER = "1"
@@ -55,9 +55,16 @@ function ChatContent() {
     setActiveTabId(activeTab)
   }, [activeTab])
 
+  const promptTabIds = ["opening", "alignment", "time-setting", "follow-up", "refusal"] as const
   const rawPrompts =
-    chatPrompts[activeTabId as keyof typeof chatPrompts] ?? chatPrompts.opening
+    promptTabIds.includes(activeTabId as (typeof promptTabIds)[number])
+      ? chatPrompts[activeTabId as (typeof promptTabIds)[number]]
+      : chatPrompts.opening
   const prompts = rawPrompts.map((p) => p.replace("[COURSE]", course))
+  const hasPeerMessage = messages.some((m) => !m.fromMe)
+  const replyChips = hasPeerMessage
+    ? chatPrompts.replies.map((p) => p.replace("[COURSE]", course))
+    : undefined
 
   const handleSend = (message: string) => {
     const newMsg = { text: message, fromMe: true }
@@ -113,28 +120,34 @@ function ChatContent() {
       </div>
 
       <div className="border-t border-slate-200 bg-white">
-        <div className="flex gap-1 px-2 pt-2 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => {
-                setActiveTabId(tab.id)
-                router.push(`/chat?tab=${tab.id}&partner=${partnerId}`)
-              }}
-              className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTabId === tab.id
-                  ? "bg-sky-100 text-sky-800"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="px-2 pt-2">
+          <div className="flex gap-1 overflow-x-auto">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => {
+                  setActiveTabId(tab.id)
+                  router.push(`/chat?tab=${tab.id}&partner=${partnerId}`)
+                }}
+                className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTabId === tab.id
+                    ? "bg-sky-100 text-sky-800"
+                    : "text-slate-600 hover:bg-slate-100"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-500 px-1 pb-1 mt-0.5 min-h-[2.5rem]">
+            {TABS.find((t) => t.id === activeTabId)?.hint}
+          </p>
         </div>
         <ChatComposer
           onSend={handleSend}
           promptChips={prompts}
+          replyChips={replyChips}
           placeholder="Type a message (prompts are editable)..."
         />
       </div>

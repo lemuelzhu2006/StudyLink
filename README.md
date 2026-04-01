@@ -65,6 +65,7 @@ The prototype preserves the paper prototype's structure and flow while incorpora
 - **Multi-criteria scoring** — study style, location proximity, goals, and availability
 - **Top-3 candidates** — browse multiple potential matches before deciding
 - **Recommendation reasons** — visible chips explaining why a match was suggested
+- **Date-aware recommendations** — `getRecommendedSessions` can filter mock sessions by ISO date when a date is provided
 
 ### Weekly Availability
 - **7-day availability editor** — toggle days on/off with start and end times
@@ -82,7 +83,7 @@ The prototype preserves the paper prototype's structure and flow while incorpora
 - **Per-partner chat history** persisted across sessions
 
 ### Google Integration
-- **Google Sign-In** via OAuth 2.0 (optional — falls back to demo mode if unconfigured)
+- **Google Sign-In** via OAuth 2.0 when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is set; otherwise the Google button runs a **demo sign-in** (no `GoogleOAuthProvider` placeholder — avoids issues on static hosts like GitHub Pages)
 - **Google Calendar sync** — one-click export of confirmed sessions with accurate dates and times
 
 ### Profile & Partners
@@ -186,7 +187,10 @@ Home → Browse recommended sessions → Tap to expand → View student profile 
 
 ```
 StudyLink/
+├── .github/workflows/
+│   └── deploy-github-pages.yml  # Build static export & deploy to GitHub Pages
 ├── public/
+│   ├── .nojekyll                  # Ensures GitHub Pages serves `/_next` (not ignored by Jekyll)
 │   └── users.csv                  # Demo account credentials (email, password, name)
 ├── src/
 │   ├── app/                       # Next.js App Router pages
@@ -212,7 +216,7 @@ StudyLink/
 │   │   ├── BottomNav.tsx          # 5-tab bottom navigation with conditional labels
 │   │   ├── Avatar.tsx             # Unified avatar (initials / image / URL)
 │   │   ├── RouteGuard.tsx         # Auth + profile completion enforcement
-│   │   ├── GoogleOAuthWrapper.tsx # SSR-safe Google OAuth provider
+│   │   ├── GoogleOAuthWrapper.tsx # Google OAuth provider only when client ID is set
 │   │   ├── WeeklyAvailabilityEditor.tsx  # 7-day schedule editor
 │   │   ├── MapPreviewCard.tsx     # Dynamic Leaflet map loader
 │   │   ├── CampusMap.tsx          # Interactive campus map with markers
@@ -226,14 +230,15 @@ StudyLink/
 │   │   └── AppStoreContext.tsx     # Global state (React Context + localStorage)
 │   └── lib/
 │       ├── store-types.ts         # Type definitions, store load/save, versioning
-│       ├── mock-data.ts           # 11 students, 11 sessions, matching algorithms
+│       ├── mock-data.ts           # ~20 mock students, 26 mock sessions, matching helpers
 │       ├── auth.ts                # CSV-based authentication
+│       ├── public-path.ts         # basePath-aware URLs for files in `public/` (GitHub Pages)
 │       ├── calendar.ts            # Google Calendar URL builder
 │       ├── image-utils.ts         # Client-side image compression
 │       └── utils.ts               # Tailwind class merge utility (cn)
 ├── tailwind.config.ts             # Theme tokens, HSL color system
 ├── tsconfig.json                  # TypeScript strict mode, path aliases
-├── next.config.js                 # Next.js configuration
+├── next.config.js                 # Static export (`output: 'export'`), optional basePath for Pages
 ├── package.json                   # Dependencies and scripts
 └── run.bat                        # Windows one-click launcher
 ```
@@ -392,6 +397,8 @@ The workflow [`.github/workflows/deploy-github-pages.yml`](.github/workflows/dep
 
 After the first successful run, open **Actions** → latest **Deploy to GitHub Pages** → the **deploy** job shows the **page URL**.
 
+`RouteGuard` strips `NEXT_PUBLIC_BASE_PATH` and trailing slashes so public routes like `/login` work under `https://user.github.io/repo/login/`.
+
 ### Local production build (with subpath)
 
 To mimic GitHub Pages locally:
@@ -425,7 +432,7 @@ Authentication uses a CSV file (`public/users.csv`). Any of these accounts work:
 | `sam@mail.utoronto.ca` | `sam123` | Sam Patel |
 | `maya@mail.utoronto.ca` | `maya123` | Maya Kim |
 
-You can also click **"Try Demo"** on the login screen to skip credentials entirely.
+If Google OAuth is not configured, use **Sign in with Google (Demo)** on the login screen for a one-click demo session.
 
 New accounts can be registered with any email — they will be guided through profile setup before accessing the app.
 
@@ -452,8 +459,8 @@ New accounts can be registered with any email — they will be guided through pr
 │  └─ Chat messages (per-partner)                 │
 ├─────────────────────────────────────────────────┤
 │  Mock Data Layer                                │
-│  ├─ 11 students with weekly availability        │
-│  ├─ 11 sessions with dynamic future dates       │
+│  ├─ ~20 students with weekly availability       │
+│  ├─ 26 sessions with dynamic future dates       │
 │  ├─ CSV-based authentication                    │
 │  └─ Matching algorithms (course, style, goal)   │
 └─────────────────────────────────────────────────┘
@@ -472,6 +479,7 @@ The `RouteGuard` component enforces:
 1. **Unauthenticated users** → redirected to `/login`
 2. **Logged in but incomplete profile** → redirected to `/profile?new=1`
 3. **Public routes** (`/login`, `/`) bypass all checks
+4. **Subpath deployments** — strips `NEXT_PUBLIC_BASE_PATH` and trailing slashes so `/repo/login/` is treated like `/login`
 
 ---
 

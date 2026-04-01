@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { MessageCircle, User } from "lucide-react"
-import { SavedPartner } from "@/lib/mock-data"
+import { SavedPartner, VERIFIED_BADGE_TITLE } from "@/lib/mock-data"
 import { Avatar } from "./Avatar"
 import { BadgeCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -27,7 +27,9 @@ export function SavedPartnerCard({ partner, onRemove, className }: SavedPartnerC
           <div className="flex items-center gap-1.5">
             <span className="font-medium text-slate-900">{partner.name}</span>
             {partner.verified && (
-              <BadgeCheck className="h-4 w-4 text-sky-500 flex-shrink-0" />
+              <span title={VERIFIED_BADGE_TITLE} className="inline-flex" role="img" aria-label={VERIFIED_BADGE_TITLE}>
+                <BadgeCheck className="h-4 w-4 text-sky-500 flex-shrink-0" aria-hidden />
+              </span>
             )}
           </div>
           <p className="text-sm text-slate-600">

@@ -1,6 +1,7 @@
 "use client"
 
 import { BadgeCheck } from "lucide-react"
+import { VERIFIED_BADGE_TITLE } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import { Avatar } from "./Avatar"
 
@@ -31,7 +32,9 @@ export function ProfileInfoCard({
         <div className="flex items-center gap-1.5">
           <span className="font-semibold text-slate-900">{name}</span>
           {verified && (
-            <BadgeCheck className="h-5 w-5 text-sky-500 flex-shrink-0" />
+            <span title={VERIFIED_BADGE_TITLE} className="inline-flex" role="img" aria-label={VERIFIED_BADGE_TITLE}>
+              <BadgeCheck className="h-5 w-5 text-sky-500 flex-shrink-0" aria-hidden />
+            </span>
           )}
         </div>
         {academicSummary && (
